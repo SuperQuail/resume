@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+/* ---------- 设计令牌：换主题只改这里 ---------- */
+@theme {
+  --color-ink: #1f2328;
+  --color-muted: #656d76;
+  --color-line: #e5e7eb;
+  --color-accent: #0969da;
+  --color-canvas: #f6f8fa;
+  --color-paper: #ffffff;
+
+  --font-sans: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-sm leading-[1.7] text-ink;
+  }
+
+  a {
+    @apply text-accent no-underline hover:underline;
+  }
+}
+
+/* ---------- 打印 / 导出 PDF：Ctrl + P ---------- */
+@media print {
+  /* 编辑界面在打印时整体隐藏，只留 A4 简历 */
+  .no-print {
+    display: none !important;
+  }
+
+  html,
+  body,
+  #root,
+  .app-shell {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  .app-shell {
+    display: block !important;
+  }
+
+  .app-body {
+    display: block !important;
+  }
+
+  .editor-pane {
+    display: none !important;
+  }
+
+  .preview-pane {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 9mm;
+  }
+
+  body {
+    background: #fff;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  header {
+    padding-bottom: 12px;
+  }
+
+  /* 收紧纵向间距，尽量一页放下 */
+  h1 {
+    font-size: 22px;
+    letter-spacing: 0;
+  }
+
+  section {
+    margin-top: 10px;
+  }
+
+  article {
+    margin-top: 8px;
+  }
+
+  ul {
+    margin-top: 4px;
+  }
+
+  /* 打印时链接不用主色，避免 PDF 里一片蓝 */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
