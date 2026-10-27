@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 
-/** 行内富文本：**加粗**、==强调==（强调样式为等宽 + 主色，用来突出数字） */
+/** 行内富文本：**加粗**、==强调==（强调用主色 + 加粗，突出数字成果） */
 const TOKEN = /(\*\*[^*]+\*\*|==[^=]+==)/g
 
 export function RichText({ text }: { text: string }) {
@@ -17,9 +17,9 @@ export function RichText({ text }: { text: string }) {
 
         if (part.startsWith('==') && part.endsWith('==') && part.length > 4) {
           return (
-            <span key={index} className="font-mono font-semibold text-accent">
+            <strong key={index} className="font-semibold text-accent">
               {part.slice(2, -2)}
-            </span>
+            </strong>
           )
         }
 

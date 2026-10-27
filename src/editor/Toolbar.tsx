@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import type { ChangeEvent, ReactNode } from 'react'
 import {
   Download,
+  FileText,
   History,
   MoreHorizontal,
   Printer,
@@ -128,8 +129,8 @@ export function Toolbar({
   return (
     <header className="no-print z-20 flex flex-wrap items-center gap-x-2 gap-y-1.5 border-b border-line bg-paper px-3 py-1.5 lg:px-4">
       <div className="flex items-center gap-2">
-        <span className="grid size-7 place-items-center rounded-md bg-ink font-mono text-sm font-bold text-white">
-          #
+        <span className="grid size-7 place-items-center rounded-md bg-ink text-white">
+          <FileText className="size-4" strokeWidth={2} />
         </span>
         <span className="text-sm font-semibold">简历编辑器</span>
       </div>

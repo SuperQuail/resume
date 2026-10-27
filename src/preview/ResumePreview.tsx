@@ -65,10 +65,6 @@ export function ResumePreview({ resume }: { resume: Resume }) {
               {section.body}
             </Section>
           ))}
-
-        <footer className="mt-8 text-center font-mono text-xs text-muted print:hidden">
-          // 编辑内容会实时同步到这里 · Ctrl + P 导出 PDF
-        </footer>
       </Page>
     </div>
   )
