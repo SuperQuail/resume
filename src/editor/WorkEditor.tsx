@@ -1,4 +1,5 @@
 import { createId } from '../lib/id'
+import { locatePreview } from '../lib/previewLocate'
 import type { WorkItem } from '../types'
 import { BulletsEditor } from './BulletsEditor'
 import { EditorSection } from './EditorSection'
@@ -12,7 +13,7 @@ interface WorkEditorProps {
 
 export function WorkEditor({ work, onChange }: WorkEditorProps) {
   return (
-    <EditorSection title="工作经验" badge={work.length + ' 段'}>
+    <EditorSection title="工作经验" badge={work.length + ' 段'} onLocate={() => locatePreview('工作经验')}>
       <ListEditor
         items={work}
         onChange={onChange}
@@ -44,11 +45,7 @@ export function WorkEditor({ work, onChange }: WorkEditorProps) {
               placeholder="2022.03 — 至今"
               onChange={(period) => patch({ period })}
             />
-            <BulletsEditor
-              bullets={item.bullets}
-              onChange={(bullets) => patch({ bullets })}
-              addLabel="添加要点"
-            />
+            <BulletsEditor bullets={item.bullets} onChange={(bullets) => patch({ bullets })} />
           </>
         )}
       />

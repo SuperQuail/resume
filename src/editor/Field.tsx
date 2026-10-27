@@ -1,4 +1,6 @@
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { cn } from '../lib/cn'
+import { markupTokenFor, wrapSelection } from '../lib/markup'
 
 interface FieldProps {
   label: string
@@ -14,6 +16,8 @@ interface FieldProps {
 const inputClass =
   'w-full rounded-md border border-line bg-paper px-2.5 py-1.5 text-[13px] text-ink outline-none transition placeholder:text-muted/60 focus:border-accent focus:ring-2 focus:ring-accent/15'
 
+type FieldElement = HTMLInputElement | HTMLTextAreaElement
+
 export function Field({
   label,
   value,
@@ -24,6 +28,14 @@ export function Field({
   hint,
   className,
 }: FieldProps) {
+  const handleKeyDown = (event: ReactKeyboardEvent<FieldElement>) => {
+    if (event.nativeEvent.isComposing) return
+    const token = markupTokenFor(event)
+    if (!token) return
+    event.preventDefault()
+    wrapSelection(event.currentTarget, token)
+  }
+
   return (
     <label className={cn('block', className)}>
       <span className="mb-1 flex items-baseline justify-between gap-2">
@@ -36,6 +48,7 @@ export function Field({
           rows={rows}
           placeholder={placeholder}
           onChange={(event) => onChange(event.target.value)}
+          onKeyDown={handleKeyDown}
           className={cn(inputClass, 'resize-y leading-relaxed')}
         />
       ) : (
@@ -44,6 +57,7 @@ export function Field({
           value={value}
           placeholder={placeholder}
           onChange={(event) => onChange(event.target.value)}
+          onKeyDown={handleKeyDown}
           className={inputClass}
         />
       )}

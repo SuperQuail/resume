@@ -15,7 +15,21 @@ const ACCENT_KEY = 'resume-editor:accent:v1'
 type View = 'edit' | 'preview'
 
 export default function App() {
-  const { resume, update, replace, reset, saveState, savedAt } = useResumeStore()
+  const {
+    resume,
+    update,
+    replace,
+    reset,
+    clear,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    snapshots,
+    restoreSnapshot,
+    saveState,
+    savedAt,
+  } = useResumeStore()
 
   const [accent, setAccent] = useState<string>(() => {
     try {
@@ -40,6 +54,28 @@ export default function App() {
     document.title = (resume.basics.name || '我的') + ' · 在线简历'
   }, [resume.basics.name])
 
+  // 全局撤销 / 重做（输入框内也拦截，受控输入的原生撤销本就不可靠）
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) return
+      const key = event.key.toLowerCase()
+
+      if (key === 'z' && !event.shiftKey) {
+        event.preventDefault()
+        undo()
+        return
+      }
+
+      if ((key === 'z' && event.shiftKey) || key === 'y') {
+        event.preventDefault()
+        redo()
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [undo, redo])
+
   return (
     <div className="app-shell flex h-dvh flex-col" style={{ '--color-accent': accent } as CSSProperties}>
       <Toolbar
@@ -47,9 +83,16 @@ export default function App() {
         saveState={saveState}
         savedAt={savedAt}
         accent={accent}
+        snapshots={snapshots}
+        canUndo={canUndo}
+        canRedo={canRedo}
         onAccent={setAccent}
         onImport={replace}
         onReset={reset}
+        onClear={clear}
+        onUndo={undo}
+        onRedo={redo}
+        onRestoreSnapshot={restoreSnapshot}
       />
 
       {/* 移动端：编辑 / 预览 切换 */}

@@ -1,14 +1,10 @@
 import { createId } from '../lib/id'
+import { locatePreview } from '../lib/previewLocate'
 import type { ProjectItem } from '../types'
 import { BulletsEditor } from './BulletsEditor'
 import { EditorSection } from './EditorSection'
 import { Field } from './Field'
 import { ListEditor } from './ListEditor'
-
-interface ProjectsEditorProps {
-  projects: ProjectItem[]
-  onChange: (next: ProjectItem[]) => void
-}
 
 /** 技术栈在编辑框里用 / 或 、 分隔，保存时自动拆成数组 */
 function parseStack(value: string): string[] {
@@ -18,9 +14,9 @@ function parseStack(value: string): string[] {
     .filter(Boolean)
 }
 
-export function ProjectsEditor({ projects, onChange }: ProjectsEditorProps) {
+export function ProjectsEditor({ projects, onChange }: { projects: ProjectItem[]; onChange: (next: ProjectItem[]) => void }) {
   return (
-    <EditorSection title="项目经验" badge={projects.length + ' 个'}>
+    <EditorSection title="项目经验" badge={projects.length + ' 个'} onLocate={() => locatePreview('项目经验')}>
       <ListEditor
         items={projects}
         onChange={onChange}
@@ -75,12 +71,7 @@ export function ProjectsEditor({ projects, onChange }: ProjectsEditorProps) {
                 }
               />
             </div>
-            <BulletsEditor
-              bullets={item.bullets}
-              onChange={(bullets) => patch({ bullets })}
-              withLabel
-              addLabel="添加要点（背景 / 方案 / 结果）"
-            />
+            <BulletsEditor bullets={item.bullets} onChange={(bullets) => patch({ bullets })} withLabel />
           </>
         )}
       />

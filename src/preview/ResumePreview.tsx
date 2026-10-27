@@ -59,7 +59,7 @@ export function ResumePreview({ resume }: { resume: Resume }) {
         <Header basics={resume.basics} />
 
         {sections
-          .filter((section) => section.title === '个人简介' || hasContent(section.title, resume))
+          .filter((section) => (section.title === '个人简介' ? resume.basics.summary.trim().length > 0 : hasContent(section.title, resume)))
           .map((section) => (
             <Section key={section.title} title={section.title}>
               {section.body}

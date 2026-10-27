@@ -1,4 +1,5 @@
 import { createId } from '../lib/id'
+import { locatePreview } from '../lib/previewLocate'
 import type { SkillItem } from '../types'
 import { EditorSection } from './EditorSection'
 import { Field } from './Field'
@@ -11,7 +12,7 @@ interface SkillsEditorProps {
 
 export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
   return (
-    <EditorSection title="专业技能" badge={skills.length + ' 条'} defaultOpen={false}>
+    <EditorSection title="专业技能" badge={skills.length + ' 条'} defaultOpen={false} onLocate={() => locatePreview('专业技能')}>
       <ListEditor
         items={skills}
         onChange={onChange}
@@ -31,7 +32,7 @@ export function SkillsEditor({ skills, onChange }: SkillsEditorProps) {
               value={item.text}
               multiline
               rows={2}
-              hint={'**加粗** ==高亮=='}
+              hint="Ctrl+B 加粗 · Ctrl+H 高亮"
               onChange={(text) => patch({ text })}
             />
           </>

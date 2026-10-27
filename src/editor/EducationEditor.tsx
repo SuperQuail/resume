@@ -1,4 +1,5 @@
 import { createId } from '../lib/id'
+import { locatePreview } from '../lib/previewLocate'
 import type { EducationItem } from '../types'
 import { EditorSection } from './EditorSection'
 import { Field } from './Field'
@@ -11,7 +12,7 @@ interface EducationEditorProps {
 
 export function EducationEditor({ education, onChange }: EducationEditorProps) {
   return (
-    <EditorSection title="教育经历" badge={education.length + ' 条'} defaultOpen={false}>
+    <EditorSection title="教育经历" badge={education.length + ' 条'} defaultOpen={false} onLocate={() => locatePreview('教育经历')}>
       <ListEditor
         items={education}
         onChange={onChange}

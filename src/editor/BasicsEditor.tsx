@@ -1,6 +1,11 @@
-import { Plus, X } from 'lucide-react'
+import { useState } from 'react'
+import { ChevronDown, Plus, X } from 'lucide-react'
+import { Icon } from '../components/Icons'
+import { guessIcon } from '../lib/contactIcon'
 import { createId } from '../lib/id'
 import { insertAt, patchAt, removeAt, replaceAt } from '../lib/list'
+import { locatePreview } from '../lib/previewLocate'
+import { cn } from '../lib/cn'
 import type { Contact, IconName, Resume } from '../types'
 import { EditorSection } from './EditorSection'
 import { Field } from './Field'
@@ -19,13 +24,27 @@ interface BasicsEditorProps {
 }
 
 export function BasicsEditor({ basics, onChange }: BasicsEditorProps) {
-  const set = (patch: Partial<Resume['basics']>) => onChange({ ...basics, ...patch })
+  const [openContact, setOpenContact] = useState<string | null>(null)
 
+  const set = (patch: Partial<Resume['basics']>) => onChange({ ...basics, ...patch })
   const setContact = (index: number, patch: Partial<Contact>) =>
     set({ contacts: patchAt(basics.contacts, index, patch) })
 
+  /** 图标跟着内容走，但用户手动改过之后就不再覆盖 */
+  const setContactText = (index: number, text: string) => {
+    const contact = basics.contacts[index]
+    const auto = guessIcon(contact.text) === contact.icon
+    setContact(index, { text, icon: auto ? guessIcon(text) : contact.icon })
+  }
+
+  const addContact = () => {
+    const contact: Contact = { id: createId('c'), icon: 'link', text: '' }
+    set({ contacts: insertAt(basics.contacts, basics.contacts.length, contact) })
+    setOpenContact(contact.id)
+  }
+
   return (
-    <EditorSection title="基本信息" badge={basics.name} defaultOpen>
+    <EditorSection title="基本信息" badge={basics.name} onLocate={() => locatePreview(null)}>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <Field label="姓名" value={basics.name} onChange={(name) => set({ name })} />
         <Field label="职位" value={basics.role} onChange={(role) => set({ role })} />
@@ -64,58 +83,72 @@ export function BasicsEditor({ basics, onChange }: BasicsEditorProps) {
         value={basics.summary}
         multiline
         rows={4}
-        hint="**加粗** ==高亮=="
+        hint="Ctrl+B 加粗 · Ctrl+H 高亮"
         onChange={(summary) => set({ summary })}
       />
 
       <div>
         <span className="mb-1 block text-xs font-medium text-muted">联系方式</span>
-        <div className="space-y-2">
-          {basics.contacts.map((contact, index) => (
-            <div key={contact.id} className="rounded-lg border border-line bg-canvas/40 p-2.5">
-              <div className="mb-1.5 flex items-center gap-1.5">
-                <select
-                  value={contact.icon}
-                  onChange={(event) => setContact(index, { icon: event.target.value as IconName })}
-                  className="rounded-md border border-line bg-paper px-1.5 py-1 text-[13px] outline-none focus:border-accent"
-                >
-                  {ICON_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <IconButton
-                  label="删除"
-                  danger
-                  className="ml-auto"
-                  onClick={() => set({ contacts: removeAt(basics.contacts, index) })}
-                >
-                  <X className="size-3.5" />
-                </IconButton>
+        <div className="space-y-1.5">
+          {basics.contacts.map((contact, index) => {
+            const open = openContact === contact.id
+
+            return (
+              <div key={contact.id} className="rounded-lg border border-line bg-paper">
+                <div className="flex items-center gap-1 pr-1">
+                  <button
+                    type="button"
+                    onClick={() => setOpenContact(open ? null : contact.id)}
+                    aria-expanded={open}
+                    className="flex min-w-0 flex-1 items-center gap-2 py-2 pl-2.5 pr-1 text-left"
+                  >
+                    <Icon name={contact.icon} className="size-3.5 shrink-0 text-muted" />
+                    <span className={cn('min-w-0 truncate text-[13px]', contact.text ? 'text-ink' : 'text-muted/60')}>
+                      {contact.text || '未填写'}
+                    </span>
+                    {!open && contact.href && (
+                      <span className="shrink-0 rounded bg-canvas px-1 py-0.5 text-[10px] text-muted">链接</span>
+                    )}
+                    <ChevronDown
+                      className={cn('ml-auto size-3.5 shrink-0 text-muted transition-transform', open && 'rotate-180')}
+                    />
+                  </button>
+                  <IconButton label="删除" danger onClick={() => set({ contacts: removeAt(basics.contacts, index) })}>
+                    <X className="size-3.5" />
+                  </IconButton>
+                </div>
+
+                {open && (
+                  <div className="space-y-2 border-t border-line px-2.5 py-2.5">
+                    <label className="flex items-center gap-2 text-xs text-muted">
+                      图标
+                      <select
+                        value={contact.icon}
+                        onChange={(event) => setContact(index, { icon: event.target.value as IconName })}
+                        className="rounded-md border border-line bg-paper px-1.5 py-1 text-[13px] text-ink outline-none focus:border-accent"
+                      >
+                        {ICON_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <Field label="显示文本" value={contact.text} onChange={(text) => setContactText(index, text)} />
+                    <Field
+                      label="链接（可选）"
+                      value={contact.href ?? ''}
+                      placeholder="mailto: / https://"
+                      onChange={(href) => setContact(index, { href: href.trim() || undefined })}
+                    />
+                  </div>
+                )}
               </div>
-              <div className="space-y-1.5">
-                <Field label="显示文本" value={contact.text} onChange={(text) => setContact(index, { text })} />
-                <Field
-                  label="链接（可选）"
-                  value={contact.href ?? ''}
-                  placeholder="mailto: / https://"
-                  onChange={(href) => setContact(index, { href: href.trim() || undefined })}
-                />
-              </div>
-            </div>
-          ))}
+            )
+          })}
           <button
             type="button"
-            onClick={() =>
-              set({
-                contacts: insertAt(basics.contacts, basics.contacts.length, {
-                  id: createId('c'),
-                  icon: 'link',
-                  text: '',
-                }),
-              })
-            }
+            onClick={addContact}
             className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
           >
             <Plus className="size-3.5" />

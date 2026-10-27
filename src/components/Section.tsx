@@ -10,7 +10,7 @@ interface SectionProps {
 /** 区块：`# 标题 ————` 的分隔线样式 */
 export function Section({ title, children, className }: SectionProps) {
   return (
-    <section className={cn('mt-7 print:mt-5', className)}>
+    <section data-section={title} className={cn('mt-7 print:mt-5', className)}>
       <h2 className="mb-3.5 flex items-center gap-2.5 font-mono text-[15px] font-semibold">
         <span className="text-accent">#</span>
         <span>{title}</span>
